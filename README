@@ -1,0 +1,18 @@
+The name of the database should be "cs5337project"
+Use this tutorial to import the project into eclipse:
+https://dzone.com/articles/importing-maven-projects-from-git-that-were-not-cr
+But at step 7, tick import existing Eclipse projects
+Don't bother with the remaining steps.
+Then update the Maven Project.
+Right click the project and click on properties.
+Then web projects settings
+Write "cs5337project" in the context root field.
+Click apply and close.
+Click on the servers tab.
+Right click on the server you are using to deploy the project.
+Click on "clean"
+Accept whatever prompt that pops up.
+Ask me for the secret file that contains our APIs
+
+Manually make 'section', 'class_no' and 'term_id' unique (composite) in the 'specific_classes' table
+Manually make 'specific_class_id' and 'user_id' unique (composite) in the 'user_classes' table
