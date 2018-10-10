@@ -18,15 +18,15 @@ create table assignments (
        next_val bigint
     ) engine=InnoDB;
 
-    insert into hibernate_sequence values ( 111 );
+    insert into hibernate_sequence values ( 420 );
 
-    insert into hibernate_sequence values ( 111 );
+    insert into hibernate_sequence values ( 420 );
 
-    insert into hibernate_sequence values ( 111 );
+    insert into hibernate_sequence values ( 420 );
 
-    insert into hibernate_sequence values ( 111 );
+    insert into hibernate_sequence values ( 420 );
 
-    insert into hibernate_sequence values ( 111 );
+    insert into hibernate_sequence values ( 420 );
 
     create table specific_classes (
        id bigint not null,

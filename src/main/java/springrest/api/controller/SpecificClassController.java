@@ -51,6 +51,8 @@ public class SpecificClassController {
 			String token = request.getHeader("Authorization").replace("Bearer ", "");
 			User requesting_user = userDao.getUserWithToken(token);
 			Specific_Class specific_class = specificClassDao.getSpecificClass(id);
+			if (specific_class == null)
+				throw new RestException(400, "Specific class does not exist");
 			if (requesting_user.getType() == type_of_user.ADMIN
 					|| specific_class.getInstructor().getId() == requesting_user.getId()
 					|| requesting_user.getClasses().contains(specific_class))
@@ -157,8 +159,8 @@ public class SpecificClassController {
 			specific_class.setEnd_time(new Date(Long.parseLong((String) json_object.get("end_time"))));
 			specific_class.setClass_start_date(new Date(Long.parseLong((String) json_object.get("class_start_time"))));
 			specific_class.setClass_end_date(new Date(Long.parseLong((String) json_object.get("class_end_time"))));
-			specific_class.setRoom("ET 104");
-			specific_class.setSection(2L);
+			specific_class.setRoom((String) json_object.get("room"));
+			specific_class.setSection(Long.parseLong(String.valueOf(json_object.get("section_id"))));
 			specific_class.setStart_time(new Date(Long.parseLong(String.valueOf(json_object.get("start_time")))));
 			specific_class.setInstructor(instructor);
 			specific_class.setShool_class(
@@ -170,6 +172,7 @@ public class SpecificClassController {
 		}
 	}
 
+	//Edit specific class
 	@RequestMapping(value = "/specific_class/{class_id}", method = RequestMethod.PUT)
 	public Specific_Class editSpecificClass(@PathVariable Long class_id, @RequestBody JSONObject json_object,
 			HttpServletRequest request) {
@@ -184,8 +187,8 @@ public class SpecificClassController {
 			specific_class.setEnd_time(new Date(Long.parseLong((String) json_object.get("end_time"))));
 			specific_class.setClass_start_date(new Date(Long.parseLong((String) json_object.get("class_start_time"))));
 			specific_class.setClass_end_date(new Date(Long.parseLong((String) json_object.get("class_end_time"))));
-			specific_class.setRoom("ET 104");
-			specific_class.setSection(2L);
+			specific_class.setRoom((String) json_object.get("room"));
+			specific_class.setSection(Long.parseLong(String.valueOf(json_object.get("section_id"))));
 			specific_class.setStart_time(new Date(Long.parseLong(String.valueOf(json_object.get("start_time")))));
 			specific_class.setInstructor(instructor);
 			specific_class.setShool_class(
@@ -199,11 +202,13 @@ public class SpecificClassController {
 
 	// Delete specific_class
 	@RequestMapping(value = "/specific_class/{id}", method = RequestMethod.DELETE)
-	public boolean DeleteSpecficClass(@PathVariable Long id, HttpServletRequest request) {
+	public JSONObject DeleteSpecficClass(@PathVariable Long id, HttpServletRequest request) {
 		try {
 			if (!methods.proceedOnlyIfAdmin(request))
 				throw new RestException(400, "Invalid Authorization");
-			return specificClassDao.deleteSpecficClass(specificClassDao.getSpecificClass(id));
+			JSONObject json_object = new JSONObject();
+			json_object.put("Success", specificClassDao.deleteSpecficClass(specificClassDao.getSpecificClass(id)));
+			return json_object;
 		} catch (Exception e) {
 			throw new RestException(400, e.getMessage());
 		}

@@ -147,10 +147,11 @@ public class AssignmentController {
 	public Assignment editAssignment(@PathVariable Long id, @RequestBody JSONObject json_object,
 			HttpServletRequest request) {
 		try {
-			if (!methods.proceedOnlyIfAdminOrInstructorForThisClass(request,
-					Long.parseLong(String.valueOf(json_object.get("specific_class_id")))))
-				throw new RestException(400, "Invalid Authorization");
 			Assignment assignment = assignmentDao.getAssignment(id);
+			if (!methods.proceedOnlyIfAdminOrInstructorForThisClass(request, assignment.getAssignment_class().getId()))
+				throw new RestException(400, "Invalid Authorization");
+			if (!methods.proceedOnlyIfAdminOrInstructorForThisClass(request, Long.parseLong(String.valueOf(json_object.get("specific_class_id")))))
+				throw new RestException(400, "Invalid Authorization");
 			assignment.setDue_date(new Date(Long.parseLong((String) json_object.get("due_date"))));
 			assignment.setPost_date(new Date(Long.parseLong((String) json_object.get("post_date"))));
 			assignment.setQuestion((String) json_object.get("question"));

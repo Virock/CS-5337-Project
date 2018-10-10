@@ -41,7 +41,7 @@ public class UserController {
 
 	@Autowired
 	private Methods methods;
-	
+
 	@Autowired
 	private Secret secret;
 
@@ -237,6 +237,8 @@ public class UserController {
 		try {
 			if (!methods.proceedOnlyIfAdmin(request))
 				throw new RestException(400, "Invalid Authorization");
+			if (user.getPassword().isEmpty())
+				throw new RestException(400, "Invalid Password");
 			user.setToken(String.valueOf(new Date().getTime()) + methods.getAlphaNumericToken());
 			user.setPassword(BCrypt.hashpw(user.getPassword(), BCrypt.gensalt(10)));
 			return userDao.saveUser(user);
@@ -278,7 +280,7 @@ public class UserController {
 
 	// Login user
 	@RequestMapping(value = "/user/login", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-	public JSONObject loginUser(@RequestBody JSONObject json_object, HttpServletRequest request) {
+	public JSONObject loginUser(@RequestBody JSONObject json_object) {
 		try {
 			// Check if email and password match, Bcrypt
 			// Also check if enabled bit is disabled
@@ -320,7 +322,7 @@ public class UserController {
 				specific_class.getUsers_in_this_class().add(user);
 				userDao.saveUser(user);
 				specificClassDao.saveSpecificClass(specific_class);
-				status.put("status", "Saved Successfully");
+				status.put("status", "Successfully added to class");
 				return status;
 			}
 		} catch (Exception e) {
@@ -328,7 +330,7 @@ public class UserController {
 		}
 	}
 
-	// Delete user from a class
+	// Remove user from a class
 	// Can be done by admin or instructor of class
 	@RequestMapping(value = "/user/{user_id}/specific_class/{specific_class_id}", method = RequestMethod.DELETE)
 	public JSONObject deleteUserFromClass(@PathVariable Long user_id, @PathVariable Long specific_class_id,
@@ -358,11 +360,10 @@ public class UserController {
 
 	// Users can request for their password to be changed in which case a new
 	// password will be mailed to them and their tokens changed.
-	@RequestMapping(value = "/user/change_password", method = RequestMethod.GET)
-	public JSONObject changePassword(HttpServletRequest request) {
+	@RequestMapping(value = "/user/{email}/change_password", method = RequestMethod.GET)
+	public JSONObject changePassword(@PathVariable String email) {
 		try {
-			String token = request.getHeader("Authorization").replace("Bearer ", "");
-			User user = userDao.getUserWithToken(token);
+			User user = userDao.getUser(email);
 			if (user != null) {
 				// Change password
 				String new_password = methods.getAlphaNumericToken();
@@ -372,8 +373,7 @@ public class UserController {
 				// Mail password
 				String uri = "https://api.sendgrid.com/v3/mail/send";
 				HttpHeaders headers = new HttpHeaders();
-				headers.add("Authorization",
-						"Bearer " + secret.getSend_email_API());
+				headers.add("Authorization", "Bearer " + secret.getSend_email_API());
 				headers.setContentType(MediaType.APPLICATION_JSON);
 				String test = "{\"personalizations\": [{\"to\": [{\"email\": \"" + user.getEmail()
 						+ "\"}],\"subject\": \"New password\"}],\"from\": {\"email\": \"viirockn7@gmail.com\"},\"content\": [{\"type\": \"text/plain\",\"value\": \"Your new password: "

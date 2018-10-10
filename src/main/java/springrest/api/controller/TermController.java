@@ -49,7 +49,10 @@ public class TermController {
 		try {
 			if (!methods.proceedOnlyIfAdmin(request))
 				throw new RestException(400, "Invalid Authorization");
-			return termDao.getTerm(id);
+			Term term = termDao.getTerm(id);
+			if (term == null)
+				throw new RestException(400, "Term does not exist");
+			return term;
 		} catch (Exception e) {
 			throw new RestException(400, e.getMessage());
 		}
@@ -68,6 +71,7 @@ public class TermController {
 		}
 	}
 
+	//Create term
 	@RequestMapping(value = "/term", method = RequestMethod.POST)
 	public Term addTerm(@RequestBody Term term, HttpServletRequest request) {
 		try {
@@ -79,12 +83,17 @@ public class TermController {
 		}
 	}
 
+	//Edit term
 	@RequestMapping(value = "/term/{term_id}", method = RequestMethod.PUT)
 	public Term editTerm(@PathVariable Long term_id, @RequestBody JSONObject json_object, HttpServletRequest request) {
 		try {
 			if (!methods.proceedOnlyIfAdmin(request))
 				throw new RestException(400, "Invalid Authorization");
 			Term term = termDao.getTerm(term_id);
+			if (term == null)
+				throw new RestException(400, "Term does not exist");
+			if (json_object.get("description") == null)
+				throw new RestException(400, "No description");
 			term.setDescription((String) json_object.get("description"));
 			return termDao.saveTerm(term);
 		} catch (Exception e) {
@@ -99,6 +108,9 @@ public class TermController {
 			if (!methods.proceedOnlyIfAdmin(request))
 				throw new RestException(400, "Invalid Authorization");
 			JSONObject response = new JSONObject();
+			Term term = termDao.getTerm(id);
+			if (term == null)
+				throw new RestException(400, "Term does not exist");
 			response.put("Success", termDao.deleteTerm(termDao.getTerm(id)));
 			return response;
 		} catch (Exception e) {

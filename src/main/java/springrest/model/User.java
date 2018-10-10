@@ -11,6 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -38,12 +39,15 @@ public class User implements Serializable {
 		this.token = token;
 	}
 
+	@Size(min = 1)
 	@Column(nullable = false, unique = false)
 	private String name;
 
+	@Size(min = 1)
 	@Column(nullable = false, unique = true)
 	private String email;
 
+	@Size(min = 1)
 	@JsonProperty(access = Access.WRITE_ONLY)
 	@Column(nullable = false)
 	private String password;
@@ -61,7 +65,7 @@ public class User implements Serializable {
 	private boolean enabled = true;
 
 	@JsonIgnore
-	@OneToMany(mappedBy = "user", orphanRemoval = true, cascade=CascadeType.ALL)
+	@OneToMany(mappedBy = "user", orphanRemoval = true, cascade = CascadeType.ALL)
 	private List<User_Assignment> user_assignments;
 
 	public List<Specific_Class> getClasses() {
@@ -73,11 +77,11 @@ public class User implements Serializable {
 	}
 
 	@JsonIgnore
-	@ManyToMany(mappedBy = "users_in_this_class", cascade=CascadeType.ALL)
+	@ManyToMany(mappedBy = "users_in_this_class", cascade = CascadeType.ALL)
 	private List<Specific_Class> classes;
-	
+
 	@JsonIgnore
-	@OneToMany(mappedBy = "instructor", orphanRemoval = true, cascade=CascadeType.ALL)
+	@OneToMany(mappedBy = "instructor", orphanRemoval = true, cascade = CascadeType.ALL)
 	private List<Specific_Class> instructed_classes;
 
 	public List<Specific_Class> getInstructed_classes() {

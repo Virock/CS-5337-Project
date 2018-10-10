@@ -9,6 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -37,6 +38,7 @@ public class School_Class implements Serializable {
 		this.description = description;
 	}
 
+	@Size(min = 1)
 	@Column(nullable = false, unique = false)
 	private String description;
 	
