@@ -44,11 +44,11 @@ public class UserAssignmentController {
 
 	@Autowired
 	private Methods methods;
-	
+
 	@Autowired
 	private Secret secret;
 
-	// Get user assignment by admin , instructor or user by id
+	// Get user assignment
 	@RequestMapping(value = "/user_assignment/{id}", method = RequestMethod.GET)
 	public User_Assignment getUserAssignment(@PathVariable Long id, HttpServletRequest request) {
 		try {
@@ -192,6 +192,14 @@ public class UserAssignmentController {
 			String token = request.getHeader("Authorization").replace("Bearer ", "");
 			User user = userDao.getUserWithToken(token);
 			User_Assignment user_assignment = user_assignmentDao.getUserAssignment(id);
+			
+			if (user_assignment == null)
+				throw new RestException(400, "User assignment does not exist");
+			
+			Assignment assignment = user_assignment.getAssignment();
+			if (new Date().after(assignment.getDue_date()))
+				throw new RestException(400, "Assignment due date has passed");
+			
 			JSONObject response = new JSONObject();
 			if (user.getType() == type_of_user.ADMIN) {
 				response.put("Success", user_assignmentDao.deleteUserAssignment(user_assignment));
@@ -200,8 +208,7 @@ public class UserAssignmentController {
 				response.put("Success", user_assignmentDao.deleteUserAssignment(user_assignment));
 				return response;
 			} else {
-				response.put("Success", false);
-				return response;
+				throw new RestException(400, "Invalid Authorization");
 			}
 		} catch (Exception e) {
 			throw new RestException(400, e.getMessage());

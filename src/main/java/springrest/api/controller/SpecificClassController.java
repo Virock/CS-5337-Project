@@ -51,6 +51,8 @@ public class SpecificClassController {
 			String token = request.getHeader("Authorization").replace("Bearer ", "");
 			User requesting_user = userDao.getUserWithToken(token);
 			Specific_Class specific_class = specificClassDao.getSpecificClass(id);
+			if (specific_class == null)
+				throw new RestException(400, "Specific class does not exist");
 			if (requesting_user.getType() == type_of_user.ADMIN
 					|| specific_class.getInstructor().getId() == requesting_user.getId()
 					|| requesting_user.getClasses().contains(specific_class))

@@ -237,6 +237,8 @@ public class UserController {
 		try {
 			if (!methods.proceedOnlyIfAdmin(request))
 				throw new RestException(400, "Invalid Authorization");
+			if (user.getPassword().isEmpty())
+				throw new RestException(400, "Invalid Password");
 			user.setToken(String.valueOf(new Date().getTime()) + methods.getAlphaNumericToken());
 			user.setPassword(BCrypt.hashpw(user.getPassword(), BCrypt.gensalt(10)));
 			return userDao.saveUser(user);

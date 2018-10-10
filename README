@@ -12,7 +12,7 @@ Click on the servers tab.
 Right click on the server you are using to deploy the project.
 Click on "clean"
 Accept whatever prompt that pops up.
-Ask me for the secret file that contains our APIs
+Ask me for the secret file that contains our Client IDs and secrets
 
 Manually make 'section', 'class_no' and 'term_id' unique (composite) in the 'specific_classes' table
 Manually make 'specific_class_id' and 'user_id' unique (composite) in the 'user_classes' table

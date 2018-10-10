@@ -37,6 +37,9 @@ public class SchoolClassController {
 		try {
 			String token = request.getHeader("Authorization").replace("Bearer ", "");
 			User user = userDao.getUserWithToken(token);
+			School_Class school_class = schoolClassDao.getSchoolClass(class_id);
+			if (school_class == null)
+				throw new RestException(400, "Class does not exist");
 			if (user != null)
 				return schoolClassDao.getSchoolClass(class_id);
 			else
@@ -46,7 +49,7 @@ public class SchoolClassController {
 		}
 	}
 
-	// Get all class
+	// Get all classes
 	@RequestMapping(value = "/classes", method = RequestMethod.GET)
 	public List<School_Class> getClasses(HttpServletRequest request) {
 		try {
@@ -67,8 +70,11 @@ public class SchoolClassController {
 		try {
 			String token = request.getHeader("Authorization").replace("Bearer ", "");
 			User user = userDao.getUserWithToken(token);
+			School_Class school_class = schoolClassDao.getSchoolClass(class_id);
+			if (school_class == null)
+				throw new RestException(400, "Class does not exist");
 			if (user != null)
-				return schoolClassDao.getSchoolClass(class_id).getSpecific_classes();
+				return school_class.getSpecific_classes();
 			else
 				throw new RestException(400, "Invalid Authorization");
 		} catch (Exception e) {
@@ -76,27 +82,34 @@ public class SchoolClassController {
 		}
 	}
 
+	//Add school class
 	@RequestMapping(value = "/class", method = RequestMethod.POST)
 	public School_Class addClass(@RequestBody School_Class this_class, HttpServletRequest request) {
 		try {
 			if (!methods.proceedOnlyIfAdmin(request))
 				throw new RestException(400, "Invalid Authorization");
+			if (this_class.getDescription().equals(""))
+				throw new RestException(400, "Invalid Description");
 			return schoolClassDao.saveClass(this_class);
 		} catch (Exception e) {
 			throw new RestException(400, e.getMessage());
 		}
 	}
 
+	//Edit school class
 	@RequestMapping(value = "/class/{id}", method = RequestMethod.PUT)
-	public School_Class editClass(@PathVariable Long id, @RequestBody School_Class this_class,
+	public School_Class editClass(@PathVariable Long id, @RequestBody JSONObject json_object,
 			HttpServletRequest request) {
 		try {
 			if (!methods.proceedOnlyIfAdmin(request))
 				throw new RestException(400, "Invalid Authorization");
-			if (schoolClassDao.getSchoolClass(id) == null)
+			School_Class school_class = schoolClassDao.getSchoolClass(id);
+			if (school_class == null)
 				throw new RestException(400, "Class does not exist");
-			this_class.setClass_no(id);
-			return schoolClassDao.saveClass(this_class);
+			if (json_object.get("description").equals(""))
+				throw new RestException(400, "Invalid description");
+			school_class.setDescription((String) json_object.get("description"));
+			return schoolClassDao.saveClass(school_class);
 		} catch (Exception e) {
 			throw new RestException(400, e.getMessage());
 		}
@@ -108,8 +121,11 @@ public class SchoolClassController {
 		try {
 			if (!methods.proceedOnlyIfAdmin(request))
 				throw new RestException(400, "Invalid Authorization");
+			School_Class school_class = schoolClassDao.getSchoolClass(id);
+			if (school_class == null)
+				throw new RestException(400, "Class does not exist");
 			JSONObject response = new JSONObject();
-			response.put("Success", schoolClassDao.deleteSchoolClass(schoolClassDao.getSchoolClass(id)));
+			response.put("Success", schoolClassDao.deleteSchoolClass(school_class));
 			return response;
 		} catch (Exception e) {
 			throw new RestException(400, e.getMessage());

@@ -47,12 +47,13 @@ public class User_AssignmentDaoImpl implements User_AssignmentDao {
 	@Override
 	@Transactional
 	public boolean deleteUserAssignment(User_Assignment user_assignment) {
-		try {
-			entityManager.remove(user_assignment);
+//		try {
+			entityManager.createQuery("DELETE FROM User_Assignment WHERE id = ?1").setParameter(1,
+					user_assignment.getId()).executeUpdate();
 			return true;
-		} catch (Exception e) {
-			return false;
-		}
+//		} catch (Exception e) {
+//			throw new RestException(400, e.getMessage());
+//		}
 	}
 
 }
